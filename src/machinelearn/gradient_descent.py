@@ -1,7 +1,7 @@
 import math, copy
 import numpy as np
 import matplotlib.pyplot as plt
-from machinelearn.lab_utils_uni import plt_divergence
+from lab_utils_uni import plt_divergence
 import cost_function
 
 
