@@ -47,10 +47,6 @@ for i in range(len(ax)):
     ax[i].scatter(X_train[:,i],y_train, label = 'target')
     ax[i].set_xlabel(X_features[i])
     ax[i].scatter(X_train[:,i],y_pred,color=dlorange, label = 'predict')
-ax[0].set_ylabel("Price"); ax[0].legend();
+ax[0].set_ylabel("Price"); ax[0].legend()
 fig.suptitle("target versus prediction using z-score normalized model")
 plt.show()
-
-
-
-

@@ -136,29 +136,47 @@ class plt_one_addpt_onclick:
             self.remove_thresh()
 
     def draw_thresh(self):
-        ws = np.squeeze(self.w)
-        xp5 = -self.b/ws if self.logistic else (0.5 - self.b) / ws
+        """Draw threshold line/areas safely."""
+        ws = float(np.squeeze(self.w))
+
+        # 1) guard: undefined when slope is zero/NaN/Inf
+        if not np.isfinite(ws) or abs(ws) < 1e-8:
+            # optionally show a hint once
+            self.ax[0].text(0.02, 0.96, "threshold undefined when w≈0", transform=self.ax[0].transAxes,
+                            fontsize=8, color="gray")
+            self.fig.canvas.draw()
+            return
+
+        # 2) compute threshold x
+        xp5 = -self.b / ws if self.logistic else (0.5 - self.b) / ws
+        if not np.isfinite(xp5):
+            return
+
+        # 3) clamp xp5 into current x-limits to avoid invalid paths at edges
         ylim = self.ax[0].get_ylim()
         xlim = self.ax[0].get_xlim()
-        a = self.ax[0].fill_between([xlim[0], xp5], [ylim[1], ylim[1]], alpha=0.2, color=dlblue)
-        b = self.ax[0].fill_between([xp5, xlim[1]], [ylim[1], ylim[1]], alpha=0.2, color=dldarkred)
-        c = self.ax[0].annotate("Malignant", xy= [xp5,0.5], xycoords='data',
-             xytext=[30,5],textcoords='offset points')
-        d = FancyArrowPatch(
-            posA=(xp5, 0.5), posB=(xp5+1.5, 0.5), color=dldarkred,
-            arrowstyle='simple, head_width=5, head_length=10, tail_width=0.0',
-        )
+        eps = 1e-6
+        xp5c = float(np.clip(xp5, xlim[0] + eps, xlim[1] - eps))
+
+        # 4) draw areas and arrows using clamped value
+        a = self.ax[0].fill_between([xlim[0], xp5c], [ylim[1], ylim[1]], alpha=0.2, color=dlblue)
+        b = self.ax[0].fill_between([xp5c, xlim[1]], [ylim[1], ylim[1]], alpha=0.2, color=dldarkred)
+
+        c = self.ax[0].annotate("Malignant", xy=[xp5c, 0.5], xycoords='data',
+                                xytext=[30, 5], textcoords='offset points')
+        d = FancyArrowPatch(posA=(xp5c, 0.5),
+                            posB=(min(xp5c + 1.5, xlim[1] - eps), 0.5),
+                            color=dldarkred, arrowstyle='simple, head_width=5, head_length=10, tail_width=0.0')
         self.ax[0].add_artist(d)
 
-        e = self.ax[0].annotate("Benign", xy= [xp5,0.5], xycoords='data',
-                     xytext=[-70,5],textcoords='offset points', ha='left')
-        f = FancyArrowPatch(
-            posA=(xp5, 0.5), posB=(xp5-1.5, 0.5), color=dlblue,
-            arrowstyle='simple, head_width=5, head_length=10, tail_width=0.0',
-        )
+        e = self.ax[0].annotate("Benign", xy=[xp5c, 0.5], xycoords='data',
+                                xytext=[-70, 5], textcoords='offset points', ha='left')
+        f = FancyArrowPatch(posA=(xp5c, 0.5),
+                            posB=(max(xp5c - 1.5, xlim[0] + eps), 0.5),
+                            color=dlblue, arrowstyle='simple, head_width=5, head_length=10, tail_width=0.0')
         self.ax[0].add_artist(f)
-        self.tlist = [a,b,c,d,e,f]
 
+        self.tlist = [a, b, c, d, e, f]
         self.fig.canvas.draw()
 
     def remove_thresh(self):
@@ -169,18 +187,12 @@ class plt_one_addpt_onclick:
 
     def resize_sq(self, bcid):
         """ resizes the check box """
-        #future reference
-        #print(f"width  : {bcid.rectangles[0].get_width()}")
-        #print(f"height : {bcid.rectangles[0].get_height()}")
-        #print(f"xy     : {bcid.rectangles[0].get_xy()}")
-        #print(f"bb     : {bcid.rectangles[0].get_bbox()}")
-        #print(f"points : {bcid.rectangles[0].get_bbox().get_points()}")  #[[xmin,ymin],[xmax,ymax]]
 
-        h = bcid.rectangles[0].get_height()
-        bcid.rectangles[0].set_height(3*h)
+        _, h = bcid.canvas.get_width_height()
+        bcid.canvas.height = 3 * h
 
-        ymax = bcid.rectangles[0].get_bbox().y1
-        ymin = bcid.rectangles[0].get_bbox().y0
+        ymax = bcid.ax.bbox.y1
+        ymin = bcid.ax.bbox.y0
 
-        bcid.lines[0][0].set_ydata([ymax,ymin])
-        bcid.lines[0][1].set_ydata([ymin,ymax])
+        bcid.ax.set_xbound([ymax, ymin])
+        bcid.ax.set_ybound([ymin, ymax])

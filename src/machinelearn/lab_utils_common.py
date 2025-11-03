@@ -345,48 +345,48 @@ def compute_gradient(X, y, w, b):
 
 
 #Function to calculate the cost
-def compute_cost_matrix(X, y, w, b, verbose=False):
-    """
-    Computes the gradient for linear regression
-     Args:
-      X (ndarray (m,n)): Data, m examples with n features
-      y (ndarray (m,)) : target values
-      w (ndarray (n,)) : model parameters
-      b (scalar)       : model parameter
-      verbose : (Boolean) If true, print out intermediate value f_wb
-    Returns
-      cost: (scalar)
-    """
-    m = X.shape[0]
+# def compute_cost_matrix(X, y, w, b, verbose=False):
+#     """
+#     Computes the gradient for linear regression
+#      Args:
+#       X (ndarray (m,n)): Data, m examples with n features
+#       y (ndarray (m,)) : target values
+#       w (ndarray (n,)) : model parameters
+#       b (scalar)       : model parameter
+#       verbose : (Boolean) If true, print out intermediate value f_wb
+#     Returns
+#       cost: (scalar)
+#     """
+#     m = X.shape[0]
+#
+#     # calculate f_wb for all examples.
+#     f_wb = X @ w + b
+#     # calculate cost
+#     total_cost = (1/(2*m)) * np.sum((f_wb-y)**2)
+#
+#     if verbose: print("f_wb:")
+#     if verbose: print(f_wb)
+#
+#     return total_cost
 
-    # calculate f_wb for all examples.
-    f_wb = X @ w + b
-    # calculate cost
-    total_cost = (1/(2*m)) * np.sum((f_wb-y)**2)
-
-    if verbose: print("f_wb:")
-    if verbose: print(f_wb)
-
-    return total_cost
-
-def compute_gradient_matrix(X, y, w, b):
-    """
-    Computes the gradient for linear regression
-
-    Args:
-      X (ndarray (m,n)): Data, m examples with n features
-      y (ndarray (m,)) : target values
-      w (ndarray (n,)) : model parameters
-      b (scalar)       : model parameter
-    Returns
-      dj_dw (ndarray (n,1)): The gradient of the cost w.r.t. the parameters w.
-      dj_db (scalar):        The gradient of the cost w.r.t. the parameter b.
-
-    """
-    m,n = X.shape
-    f_wb = X @ w + b
-    e   = f_wb - y
-    dj_dw  = (1/m) * (X.T @ e)
-    dj_db  = (1/m) * np.sum(e)
-
-    return dj_db,dj_dw
+# def compute_gradient_matrix(X, y, w, b):
+#     """
+#     Computes the gradient for linear regression
+#
+#     Args:
+#       X (ndarray (m,n)): Data, m examples with n features
+#       y (ndarray (m,)) : target values
+#       w (ndarray (n,)) : model parameters
+#       b (scalar)       : model parameter
+#     Returns
+#       dj_dw (ndarray (n,1)): The gradient of the cost w.r.t. the parameters w.
+#       dj_db (scalar):        The gradient of the cost w.r.t. the parameter b.
+#
+#     """
+#     m,n = X.shape
+#     f_wb = X @ w + b
+#     e   = f_wb - y
+#     dj_dw  = (1/m) * (X.T @ e)
+#     dj_db  = (1/m) * np.sum(e)
+#
+#     return dj_db,dj_dw
